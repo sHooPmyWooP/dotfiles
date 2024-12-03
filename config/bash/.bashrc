@@ -1,0 +1,165 @@
+#!/bin/bash
+
+#########################################
+# Exports
+#########################################
+
+# don't put duplicate lines in the history
+HISTCONTROL=ignoredups:ignorespace
+# append to the history file, don't overwrite it
+shopt -s histappend
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+# Set the bash history timestamp format
+export HISTTIMEFORMAT="%F,%T "
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+#########################################
+# Aliases
+#########################################
+
+## color
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+fi
+
+## quality of life
+alias c='clear'                               # Press c to clear the terminal screen.
+alias hs='history | grep'                     # Search command line history
+alias cg='cd `git rev-parse --show-toplevel`' # move to top level of current git repository
+alias reload='. ~/.bashrc'                    # reload the bashrc
+
+## ls
+alias l='ls -CF'                 # lazy ls
+alias ll='ls -alh'               # list all, as detailed list and human readable
+alias la='ls -A'                 # list almost all
+alias lf="ls -l | egrep -v '^d'" # files only
+alias ldir="ls -l | egrep '^d'"  # directories only
+
+## ps
+alias p='ps aux | grep' # Search running processes
+### get top process by memory consumption
+alias psmem='ps auxf | sort -nr -k 4 | head -1'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+### get top process by cpu consumption
+alias pscpu='ps auxf | sort -nr -k 3 | head -1'
+alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
+
+## git
+alias gc='git cm'
+alias gpu='git pull'
+alias gp='git push'
+alias gu='git up'
+alias gaa='git add -A'
+alias gco='git checkout -b $1'
+alias gss='git ss'
+alias gcm='git commit -m $1 $2'
+alias gcmp='git commit -m $1 && git push'
+
+## terraform
+alias tflogon='export TF_LOG=debug'
+alias tflogoff='export TF_LOG=""'
+alias tfplan='terraform plan -out tfplan'
+alias tfapply='terraform apply tfplan'
+
+
+## az cli
+alias azl='az logout && az account clear && az login --use-device-code'
+alias azs='f(){ az account set --subscription "$@" && az account show;  unset -f f; }; f'
+
+#### VF specifics
+alias azvfdev2='az account set --subscription "Vattenfall Analytical Platform 2 DEVTST" && echo "Switched to [Vattenfall Analytical Platform 2 DEVTST]"'
+alias azvfprd2='az account set --subscription "Vattenfall Analytical Platform 2 ACCPRD" && echo "Switched to [Vattenfall Analytical Platform 2 ACCPRD]"'
+
+#########################################
+# Functions
+#########################################
+
+## extract any compressed file
+extract() {
+  if [ -f $1 ]; then
+    case $1 in
+    *.tar.bz2) tar xvjf $1 ;;
+    *.tar.gz) tar xvzf $1 ;;
+    *.bz2) bunzip2 $1 ;;
+    *.rar) unrar x $1 ;;
+    *.gz) gunzip $1 ;;
+    *.tar) tar xvf $1 ;;
+    *.tbz2) tar xvjf $1 ;;
+    *.tgz) tar xvzf $1 ;;
+    *.zip) unzip $1 ;;
+    *.Z) uncompress $1 ;;
+    *.7z) 7z x $1 ;;
+    *) echo "don't know how to extract '$1'..." ;;
+    esac
+  else
+    echo "'$1' is not a valid file!"
+  fi
+}
+
+## compress a file with tar and gzip
+targz() {
+  tar -zcvf $1.tar.gz $1
+}
+
+## make directory and enter it
+mkcd() {
+  if [ -f $1 ]; then
+    mkdir -p -v "$1"
+    cd "$1"
+  else
+    echo "Usage: $0 directory_to_create"
+  fi
+}
+
+## do sudo, or sudo the last command if no argument given
+s() {
+  if [[ $# == 0 ]]; then
+    sudo $(history -p '!!')
+  else
+    sudo "$@"
+  fi
+}
+
+#########################################
+# Prompt
+#########################################
+
+function parse_virtualenv() {
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        venv_name=$(basename "$VIRTUAL_ENV")
+        echo "($venv_name)"
+    fi
+}
+
+__bash_prompt() {
+  local userpart='`export XIT=$? \
+        && [ ! -z "${GITHUB_USER}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"`'
+  local gitbranch='`\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH=$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null); \
+            if [ "${BRANCH}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`'
+  local lightblue='\[\033[1;34m\]'
+  local removecolor='\[\033[0m\]'
+#   PS1="${userpart} ${lightblue}\w ${gitbranch}${removecolor}\$ $(parse_virtualenv) "
+  PS1="${lightblue}\w ${gitbranch}${removecolor}\$ $(parse_virtualenv) "
+  unset -f __bash_prompt
+}
+__bash_prompt
+export PROMPT_DIRTRIM=4

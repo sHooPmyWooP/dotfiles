@@ -1,0 +1,31 @@
+[core]
+    editor = code --wait
+[diff]
+    tool = vscode
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+  tool = vscode
+[mergetool "vscode"]
+  cmd = code --wait $MERGED
+[alias]
+    br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+    cleanup = "!git remote prune origin; echo \"Pruned Origin.\"&& if [ -n \"$(git branch | grep -vE \"master|main\")\" ]; then git branch | grep -vE \"master|main\" | xargs git branch -d; else echo \"No local branches were deleted.\";fi"
+    cm = !"f() { if [ -z \"$1\" ]; then git commit -m \"WIP\"; else git commit -m \"$1\"; fi }; f"
+    conf = config --global --edit
+    diff-all = !"for name in $(git diff --name-only $1); do git difftool $1 $name & done"
+    la = "!git config -l | grep alias | cut -c 7-"
+    last = log -1 HEAD --stat
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset %C(bold green)(%cr)%C(reset):%C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset' --abbrev-commit
+    ss = !git fetch && git status -sb
+    up = !git add . && git commit --amend --no-edit && git push --force-with-lease
+    acmp = !"f() { git add -A && git commit -m \"$@\" && git push; }; f"
+[push]
+    autoSetupRemote = true
+[advice]
+    statusHints = false
+[pull]
+    rebase = true
+[user]
+    name = David Achilles
+    email = david.achilles@initions-consulting.com
