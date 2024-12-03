@@ -35,6 +35,10 @@ alias c='clear'                               # Press c to clear the terminal sc
 alias hs='history | grep'                     # Search command line history
 alias cg='cd `git rev-parse --show-toplevel`' # move to top level of current git repository
 alias reload='. ~/.bashrc'                    # reload the bashrc
+alias ..='cd ..'                              # Go up one directory
+alias ...='cd ../..'                          # Go up two directories
+alias ....='cd ../../..'                      # Go up three directories
+alias .....='cd ../../../..'                  # Go up four directories
 
 ## ls
 alias l='ls -CF'                 # lazy ls
@@ -58,10 +62,7 @@ alias gpu='git pull'
 alias gp='git push'
 alias gu='git up'
 alias gaa='git add -A'
-alias gco='git checkout -b $1'
 alias gss='git ss'
-alias gcm='git commit -m $1 $2'
-alias gcmp='git commit -m $1 && git push'
 
 ## terraform
 alias tflogon='export TF_LOG=debug'

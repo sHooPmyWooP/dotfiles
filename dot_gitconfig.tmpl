@@ -27,5 +27,5 @@
 [pull]
     rebase = true
 [user]
-    name = David Achilles
-    email = david.achilles@initions-consulting.com
+    name = {{ .name | quote }}
+    email = {{ .email | quote }}
