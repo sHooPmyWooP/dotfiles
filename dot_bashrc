@@ -58,6 +58,7 @@ alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
 
 ## git
 alias gc='git cm'
+alias gcob='git cob'
 alias gpu='git pull'
 alias gp='git push'
 alias gu='git up'

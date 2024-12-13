@@ -11,7 +11,6 @@
 [alias]
     br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
     cob = checkout -b
-    cobf = checkout -b feature/
     cleanup = "!git remote prune origin; echo \"Pruned Origin.\"&& if [ -n \"$(git branch | grep -vE \"master|main\")\" ]; then git branch | grep -vE \"master|main\" | xargs git branch -d; else echo \"No local branches were deleted.\";fi"
     cm = !"f() { if [ -z \"$1\" ]; then git commit -m \"WIP\"; else git commit -m \"$1\"; fi }; f"
     conf = config --global --edit
