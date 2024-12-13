@@ -56,6 +56,10 @@ alias psmem10='ps auxf | sort -nr -k 4 | head -10'
 alias pscpu='ps auxf | sort -nr -k 3 | head -1'
 alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
 
+## chezmoi
+
+alias chezpush='chezmoi apply && chezmoi git add . && chezmoi git commit && chezmoi git push && . ~/.bashrc'
+
 ## git
 alias gc='git cm'
 alias gcob='git cob'
